@@ -1,0 +1,18 @@
+.App {
+  text-align: center;
+}
+
+.Scoreboard {
+  margin-bottom: 20px;
+}
+
+.Card {
+  display: inline-block;
+  margin: 10px;
+  cursor: pointer;
+}
+
+.Card img {
+  width: 150px;
+  height: 150px;
+}
