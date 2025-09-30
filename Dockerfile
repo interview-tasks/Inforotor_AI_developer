@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt .
 
 # Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --root-user-action=ignore -r requirements.txt
 
 # Download NLTK data
 RUN python -m textblob.download_corpora
@@ -22,7 +22,8 @@ RUN python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords'); 
 # Copy application
 COPY . .
 
-# Train models on container build
+# Train models on container build (suppress joblib warnings)
+ENV LOKY_MAX_CPU_COUNT=2
 RUN python app/models/train_models.py
 
 # Expose port
