@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block title %}Customer Segmentation - POS ML Platform{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="hero">
+        <h1>👥 Customer Segmentation</h1>
+        <p class="subtitle">Identify customer segments for targeted marketing campaigns</p>
+    </section>
+
+    <div class="form-section">
+        <h2>Enter Customer Metrics</h2>
+        <form id="segmentationForm">
+            <div class="form-group">
+                <label for="purchase_value_mean">Average Purchase Value ($)</label>
+                <input type="number" id="purchase_value_mean" name="purchase_value_mean"
+                       step="0.01" min="0" required value="35.50">
+                <small>Mean transaction value for this customer</small>
+            </div>
+
+            <div class="form-group">
+                <label for="purchase_value_count">Total Number of Purchases</label>
+                <input type="number" id="purchase_value_count" name="purchase_value_count"
+                       min="1" required value="12">
+                <small>Total visit count</small>
+            </div>
+
+            <div class="form-group">
+                <label for="nps_score_mean">Average NPS Score</label>
+                <input type="number" id="nps_score_mean" name="nps_score_mean"
+                       step="0.1" min="0" max="10" required value="8.5">
+                <small>Net Promoter Score (0-10 scale)</small>
+            </div>
+
+            <div class="form-group">
+                <label for="overall_score_mean">Average Overall Satisfaction</label>
+                <input type="number" id="overall_score_mean" name="overall_score_mean"
+                       step="0.1" min="1" max="5" required value="4.2">
+                <small>Overall satisfaction score (1-5 scale)</small>
+            </div>
+
+            <div class="form-group">
+                <label for="would_recommend_mean">Recommendation Rate</label>
+                <input type="number" id="would_recommend_mean" name="would_recommend_mean"
+                       step="0.01" min="0" max="1" required value="0.85">
+                <small>Percentage who would recommend (0-1)</small>
+            </div>
+
+            <div class="form-group">
+                <label for="is_weekend_mean">Weekend Visit Rate</label>
+                <input type="number" id="is_weekend_mean" name="is_weekend_mean"
+                       step="0.01" min="0" max="1" required value="0.45">
+                <small>Percentage of visits on weekends (0-1)</small>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Predict Segment</button>
+        </form>
+    </div>
+
+    <div id="loading" class="loading" style="display: none;">
+        <div class="spinner"></div>
+        <p>Analyzing customer profile...</p>
+    </div>
+
+    <div id="result" style="display: none;"></div>
+
+    <section class="benefits-section">
+        <h2>Segment Profiles</h2>
+        <div class="benefits-grid">
+            <div class="benefit-item">
+                <h4>🌟 Premium Regulars</h4>
+                <p>High-value, frequent customers with excellent satisfaction. Target with VIP programs and premium offers.</p>
+            </div>
+            <div class="benefit-item">
+                <h4>💵 Budget Shoppers</h4>
+                <p>Price-sensitive customers seeking value. Engage with volume discounts and promotional campaigns.</p>
+            </div>
+            <div class="benefit-item">
+                <h4>🔄 Occasional Buyers</h4>
+                <p>Infrequent visitors with moderate spending. Re-engage with welcome-back offers and incentives.</p>
+            </div>
+            <div class="benefit-item">
+                <h4>🎉 Weekend Socializers</h4>
+                <p>Social customers preferring weekend visits. Target with group discounts and event marketing.</p>
+            </div>
+            <div class="benefit-item">
+                <h4>⚠️ At-Risk Customers</h4>
+                <p>Customers showing churn signals. Immediate intervention needed with retention campaigns.</p>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('segmentationForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.target);
+    const data = {
+        purchase_value_mean: parseFloat(formData.get('purchase_value_mean')),
+        purchase_value_count: parseInt(formData.get('purchase_value_count')),
+        nps_score_mean: parseFloat(formData.get('nps_score_mean')),
+        overall_score_mean: parseFloat(formData.get('overall_score_mean')),
+        would_recommend_mean: parseFloat(formData.get('would_recommend_mean')),
+        is_weekend_mean: parseFloat(formData.get('is_weekend_mean'))
+    };
+
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('result').style.display = 'none';
+
+    try {
+        const response = await fetch('/api/predict/segment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        document.getElementById('loading').style.display = 'none';
+
+        if (response.ok) {
+            displayResult(result);
+        } else {
+            displayError(result.error || 'Prediction failed');
+        }
+    } catch (error) {
+        document.getElementById('loading').style.display = 'none';
+        displayError('Network error. Please try again.');
+    }
+});
+
+function displayResult(result) {
+    const resultDiv = document.getElementById('result');
+    resultDiv.innerHTML = `
+        <div class="result-card">
+            <div class="result-header">
+                <span style="font-size: 3rem;">👤</span>
+                <h3>Segment Identified</h3>
+            </div>
+
+            <div class="result-grid">
+                <div class="result-item">
+                    <div class="result-label">Segment Name</div>
+                    <div class="result-value">${result.segment_name}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Segment ID</div>
+                    <div class="result-value">#${result.segment_id}</div>
+                </div>
+            </div>
+
+            <div class="result-description">
+                <h4>📊 Segment Description</h4>
+                <p>${result.description}</p>
+            </div>
+
+            <div class="result-description" style="margin-top: 1rem;">
+                <h4>🎯 Recommended Actions</h4>
+                <p><strong>${result.recommended_action}</strong></p>
+            </div>
+        </div>
+    `;
+    resultDiv.style.display = 'block';
+}
+
+function displayError(message) {
+    const resultDiv = document.getElementById('result');
+    resultDiv.innerHTML = `
+        <div class="result-card" style="border-left: 4px solid var(--danger);">
+            <h3 style="color: var(--danger);">❌ Error</h3>
+            <p>${message}</p>
+        </div>
+    `;
+    resultDiv.style.display = 'block';
+}
+</script>
+{% endblock %}

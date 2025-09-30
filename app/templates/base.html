@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Cigarette POS ML Platform{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="logo">🚬 POS ML Platform</a>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/segmentation">Segmentation</a></li>
+                <li><a href="/purchase">Purchase</a></li>
+                <li><a href="/churn">Churn</a></li>
+                <li><a href="/sentiment">Sentiment</a></li>
+                <li><a href="/pos-ranking">POS Ranking</a></li>
+                <li><a href="/dashboard">Dashboard</a></li>
+            </ul>
+            <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Cigarette POS ML Platform | Built with FastAPI & ML</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            const navLinks = document.querySelector('.nav-links');
+            navLinks.classList.toggle('active');
+        }
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

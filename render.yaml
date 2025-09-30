@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: cigarette-pos-ml-platform
+    env: docker
+    region: oregon
+    plan: free
+    branch: master
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: PYTHONUNBUFFERED
+        value: 1

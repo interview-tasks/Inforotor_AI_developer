@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}Home - POS ML Platform{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="hero">
+        <h1>🎯 Cigarette POS ML Platform</h1>
+        <p class="subtitle">Production-ready machine learning models for retail optimization</p>
+
+        {% if models_loaded %}
+        <div class="status-badge success">✓ All Models Active</div>
+        {% else %}
+        <div class="status-badge error">⚠ Models Not Loaded</div>
+        {% endif %}
+    </section>
+
+    <section class="models-grid">
+        <div class="model-card">
+            <div class="model-icon">👥</div>
+            <h3>Customer Segmentation</h3>
+            <p>Identify 5 distinct customer segments using K-Means clustering for targeted marketing campaigns.</p>
+            <ul class="model-features">
+                <li>Premium Regulars</li>
+                <li>Budget Shoppers</li>
+                <li>Occasional Buyers</li>
+            </ul>
+            <a href="/segmentation" class="btn btn-primary">Try Segmentation →</a>
+        </div>
+
+        <div class="model-card">
+            <div class="model-icon">💰</div>
+            <h3>Purchase Prediction</h3>
+            <p>Forecast customer purchase value with XGBoost to optimize upselling and inventory management.</p>
+            <ul class="model-features">
+                <li>Real-time predictions</li>
+                <li>Confidence intervals</li>
+                <li>Upselling recommendations</li>
+            </ul>
+            <a href="/purchase" class="btn btn-primary">Predict Purchase →</a>
+        </div>
+
+        <div class="model-card">
+            <div class="model-icon">🔥</div>
+            <h3>Churn Risk Scoring</h3>
+            <p>Detect at-risk customers using Gradient Boosting and deploy retention campaigns with ROI tracking.</p>
+            <ul class="model-features">
+                <li>Risk tier classification</li>
+                <li>Retention recommendations</li>
+                <li>Expected ROI calculation</li>
+            </ul>
+            <a href="/churn" class="btn btn-primary">Assess Churn Risk →</a>
+        </div>
+
+        <div class="model-card">
+            <div class="model-icon">💬</div>
+            <h3>Sentiment Analysis</h3>
+            <p>Analyze customer feedback using TextBlob NLP to detect satisfaction and trigger appropriate responses.</p>
+            <ul class="model-features">
+                <li>Positive/Negative detection</li>
+                <li>Priority classification</li>
+                <li>Action recommendations</li>
+            </ul>
+            <a href="/sentiment" class="btn btn-primary">Analyze Sentiment →</a>
+        </div>
+
+        <div class="model-card">
+            <div class="model-icon">📍</div>
+            <h3>POS Location Ranking</h3>
+            <p>Rank and evaluate POS locations based on revenue, efficiency, and customer satisfaction metrics.</p>
+            <ul class="model-features">
+                <li>Composite scoring</li>
+                <li>Performance benchmarking</li>
+                <li>Optimization insights</li>
+            </ul>
+            <a href="/pos-ranking" class="btn btn-primary">Rank Locations →</a>
+        </div>
+    </section>
+
+    {% if metadata %}
+    <section class="metrics-section">
+        <h2>Model Performance Metrics</h2>
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-label">Training Samples</div>
+                <div class="metric-value">{{ "{:,}".format(metadata.n_samples) }}</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Purchase Prediction MAE</div>
+                <div class="metric-value">${{ "%.2f"|format(metadata.models.purchase_prediction.mae) }}</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Churn Model AUC</div>
+                <div class="metric-value">{{ "%.3f"|format(metadata.models.churn.auc) }}</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Customer Segments</div>
+                <div class="metric-value">{{ metadata.models.segmentation.n_segments }}</div>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <section class="benefits-section">
+        <h2>Business Impact</h2>
+        <div class="benefits-grid">
+            <div class="benefit-item">
+                <h4>📈 Revenue Optimization</h4>
+                <p>Increase sales by 15-25% through targeted upselling and personalized offers</p>
+            </div>
+            <div class="benefit-item">
+                <h4>🎯 Customer Retention</h4>
+                <p>Reduce churn by 30-40% with proactive intervention campaigns</p>
+            </div>
+            <div class="benefit-item">
+                <h4>⚡ Real-time Insights</h4>
+                <p>Make data-driven decisions instantly at the point of sale</p>
+            </div>
+            <div class="benefit-item">
+                <h4>💡 Smart Marketing</h4>
+                <p>Deploy segment-specific campaigns with measurable ROI</p>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

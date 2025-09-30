@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+
+{% block title %}POS Location Ranking - POS ML Platform{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="hero">
+        <h1>📍 POS Location Ranking</h1>
+        <p class="subtitle">Evaluate and benchmark point-of-sale location performance</p>
+    </section>
+
+    <div class="form-section">
+        <h2>Evaluate New Location</h2>
+        <form id="posRankForm">
+            <div class="form-group">
+                <label for="monthly_transactions">Monthly Transactions</label>
+                <input type="number" id="monthly_transactions" name="monthly_transactions"
+                       min="0" required value="650">
+                <small>Total number of transactions per month</small>
+            </div>
+
+            <div class="form-group">
+                <label for="monthly_revenue">Monthly Revenue ($)</label>
+                <input type="number" id="monthly_revenue" name="monthly_revenue"
+                       step="0.01" min="0" required value="22000">
+                <small>Total monthly revenue in dollars</small>
+            </div>
+
+            <div class="form-group">
+                <label for="foot_traffic">Monthly Foot Traffic</label>
+                <input type="number" id="foot_traffic" name="foot_traffic"
+                       min="0" required value="4000">
+                <small>Total visitors passing by the location</small>
+            </div>
+
+            <div class="form-group">
+                <label for="customer_satisfaction">Customer Satisfaction Score</label>
+                <input type="number" id="customer_satisfaction" name="customer_satisfaction"
+                       step="0.1" min="1" max="5" required value="4.2">
+                <small>Average customer satisfaction (1-5 scale)</small>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Calculate Ranking</button>
+        </form>
+    </div>
+
+    <div id="loading" class="loading" style="display: none;">
+        <div class="spinner"></div>
+        <p>Calculating performance score...</p>
+    </div>
+
+    <div id="result" style="display: none;"></div>
+
+    {% if locations %}
+    <section class="metrics-section" style="margin-top: 3rem;">
+        <h2>🏆 Current Location Rankings</h2>
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow);">
+                <thead style="background: var(--primary); color: white;">
+                    <tr>
+                        <th style="padding: 1rem; text-align: left;">Rank</th>
+                        <th style="padding: 1rem; text-align: left;">Location</th>
+                        <th style="padding: 1rem; text-align: right;">Monthly Revenue</th>
+                        <th style="padding: 1rem; text-align: right;">Transactions</th>
+                        <th style="padding: 1rem; text-align: right;">Conversion Rate</th>
+                        <th style="padding: 1rem; text-align: right;">Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for loc in locations %}
+                    <tr style="border-bottom: 1px solid var(--border);">
+                        <td style="padding: 1rem; font-weight: bold;">
+                            {% if loc.rank == 1 %}🥇{% elif loc.rank == 2 %}🥈{% elif loc.rank == 3 %}🥉{% else %}{{ loc.rank }}{% endif %}
+                        </td>
+                        <td style="padding: 1rem;">{{ loc.location_name }}</td>
+                        <td style="padding: 1rem; text-align: right;">${{ "{:,.0f}".format(loc.monthly_revenue) }}</td>
+                        <td style="padding: 1rem; text-align: right;">{{ "{:,}".format(loc.monthly_transactions) }}</td>
+                        <td style="padding: 1rem; text-align: right;">{{ (loc.conversion_rate * 100)|round(2) }}%</td>
+                        <td style="padding: 1rem; text-align: right; font-weight: bold; color: var(--primary);">{{ loc.composite_score|round(3) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+    {% endif %}
+
+    <section class="benefits-section" style="margin-top: 3rem;">
+        <h2>Scoring Methodology</h2>
+        <div class="benefits-grid">
+            <div class="benefit-item">
+                <h4>💰 Revenue Score (40%)</h4>
+                <p>Normalized monthly revenue compared to all locations. Higher revenue = higher score.</p>
+            </div>
+            <div class="benefit-item">
+                <h4>🎯 Efficiency Score (35%)</h4>
+                <p>Conversion rate (transactions ÷ foot traffic). Measures location's ability to convert visitors.</p>
+            </div>
+            <div class="benefit-item">
+                <h4>⭐ Satisfaction Score (25%)</h4>
+                <p>Customer satisfaction rating. Reflects service quality and customer experience.</p>
+            </div>
+            <div class="benefit-item">
+                <h4>📊 Composite Score</h4>
+                <p>Weighted combination of all metrics. Ranges from 0 to 1, higher is better.</p>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('posRankForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.target);
+    const data = {
+        monthly_transactions: parseInt(formData.get('monthly_transactions')),
+        monthly_revenue: parseFloat(formData.get('monthly_revenue')),
+        foot_traffic: parseInt(formData.get('foot_traffic')),
+        customer_satisfaction: parseFloat(formData.get('customer_satisfaction'))
+    };
+
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('result').style.display = 'none';
+
+    try {
+        const response = await fetch('/api/predict/pos-rank', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        document.getElementById('loading').style.display = 'none';
+
+        if (response.ok) {
+            displayResult(result);
+        } else {
+            displayError(result.error || 'Calculation failed');
+        }
+    } catch (error) {
+        document.getElementById('loading').style.display = 'none';
+        displayError('Network error. Please try again.');
+    }
+});
+
+function displayResult(result) {
+    const tierColors = {
+        'Excellent': 'var(--secondary)',
+        'Good': 'var(--primary)',
+        'Fair': 'var(--warning)',
+        'Poor': 'var(--danger)'
+    };
+
+    const resultDiv = document.getElementById('result');
+    resultDiv.innerHTML = `
+        <div class="result-card">
+            <div class="result-header">
+                <span style="font-size: 3rem;">📊</span>
+                <h3>Performance Evaluation</h3>
+            </div>
+
+            <div class="result-grid">
+                <div class="result-item" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <div class="result-label" style="color: rgba(255,255,255,0.9);">Composite Score</div>
+                    <div class="result-value" style="color: white;">${result.composite_score}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Predicted Rank</div>
+                    <div class="result-value">#${result.predicted_rank} / ${result.total_locations}</div>
+                </div>
+                <div class="result-item" style="background: ${tierColors[result.performance_tier]}; color: white;">
+                    <div class="result-label" style="color: rgba(255,255,255,0.9);">Performance Tier</div>
+                    <div class="result-value" style="color: white;">${result.performance_tier}</div>
+                </div>
+            </div>
+
+            <div class="result-grid" style="margin-top: 1.5rem;">
+                <div class="result-item">
+                    <div class="result-label">Avg Transaction Value</div>
+                    <div style="font-size: 1.25rem; font-weight: 600;">$${result.metrics.avg_transaction_value}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Conversion Rate</div>
+                    <div style="font-size: 1.25rem; font-weight: 600;">${result.metrics.conversion_rate}%</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Revenue Score</div>
+                    <div style="font-size: 1.25rem; font-weight: 600;">${result.metrics.revenue_score}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Efficiency Score</div>
+                    <div style="font-size: 1.25rem; font-weight: 600;">${result.metrics.efficiency_score}</div>
+                </div>
+            </div>
+
+            <div class="result-description" style="margin-top: 1.5rem;">
+                <h4>🎯 Strategic Recommendation</h4>
+                <p><strong>${result.recommended_action}</strong></p>
+            </div>
+        </div>
+    `;
+    resultDiv.style.display = 'block';
+    resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function displayError(message) {
+    const resultDiv = document.getElementById('result');
+    resultDiv.innerHTML = `
+        <div class="result-card" style="border-left: 4px solid var(--danger);">
+            <h3 style="color: var(--danger);">❌ Error</h3>
+            <p>${message}</p>
+        </div>
+    `;
+    resultDiv.style.display = 'block';
+}
+</script>
+{% endblock %}

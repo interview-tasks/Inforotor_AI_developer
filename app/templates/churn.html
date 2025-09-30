@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+
+{% block title %}Churn Risk Scoring - POS ML Platform{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="hero">
+        <h1>🔥 Churn Risk Scoring</h1>
+        <p class="subtitle">Identify at-risk customers and prevent churn proactively</p>
+    </section>
+
+    <div class="form-section">
+        <h2>Enter Customer Behavior Metrics</h2>
+        <form id="churnForm">
+            <div class="form-group">
+                <label for="recency_days">Days Since Last Visit</label>
+                <input type="number" id="recency_days" name="recency_days"
+                       min="0" required value="45">
+                <small>Number of days since last purchase</small>
+            </div>
+
+            <div class="form-group">
+                <label for="visit_count">Total Visit Count</label>
+                <input type="number" id="visit_count" name="visit_count"
+                       min="1" required value="8">
+                <small>Lifetime number of visits</small>
+            </div>
+
+            <div class="form-group">
+                <label for="total_spent">Total Spent ($)</label>
+                <input type="number" id="total_spent" name="total_spent"
+                       step="0.01" min="0" required value="280.50">
+                <small>Lifetime customer value</small>
+            </div>
+
+            <div class="form-group">
+                <label for="avg_spent">Average Spent Per Visit ($)</label>
+                <input type="number" id="avg_spent" name="avg_spent"
+                       step="0.01" min="0" required value="35.00">
+                <small>Mean transaction value</small>
+            </div>
+
+            <div class="form-group">
+                <label for="purchase_frequency">Purchase Frequency</label>
+                <input type="number" id="purchase_frequency" name="purchase_frequency"
+                       step="0.001" min="0" required value="0.08">
+                <small>Visits per day (e.g., 0.1 = once every 10 days)</small>
+            </div>
+
+            <div class="form-group">
+                <label for="avg_nps">Average NPS Score</label>
+                <input type="number" id="avg_nps" name="avg_nps"
+                       step="0.1" min="0" max="10" required value="7.5">
+                <small>Net Promoter Score (0-10)</small>
+            </div>
+
+            <div class="form-group">
+                <label for="recommend_rate">Recommendation Rate</label>
+                <input type="number" id="recommend_rate" name="recommend_rate"
+                       step="0.01" min="0" max="1" required value="0.75">
+                <small>Percentage who would recommend (0-1)</small>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Assess Churn Risk</button>
+        </form>
+    </div>
+
+    <div id="loading" class="loading" style="display: none;">
+        <div class="spinner"></div>
+        <p>Calculating churn probability...</p>
+    </div>
+
+    <div id="result" style="display: none;"></div>
+
+    <section class="benefits-section">
+        <h2>Churn Prevention Strategy</h2>
+        <div class="benefits-grid">
+            <div class="benefit-item">
+                <h4>🔴 HIGH Risk (>70%)</h4>
+                <p><strong>Immediate action required.</strong> 30% discount + manager outreach call. Expected recovery rate: 35%</p>
+            </div>
+            <div class="benefit-item">
+                <h4>🟡 MEDIUM Risk (40-70%)</h4>
+                <p><strong>Schedule within 7 days.</strong> 20% off next purchase via SMS. Expected recovery rate: 25%</p>
+            </div>
+            <div class="benefit-item">
+                <h4>🟢 LOW Risk (<40%)</h4>
+                <p><strong>Standard loyalty program.</strong> 10% off 10th purchase. Expected recovery rate: 10%</p>
+            </div>
+            <div class="benefit-item">
+                <h4>📊 ROI Tracking</h4>
+                <p>Calculates intervention cost vs. expected recovery to ensure profitable retention campaigns.</p>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('churnForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.target);
+    const data = {
+        recency_days: parseInt(formData.get('recency_days')),
+        visit_count: parseInt(formData.get('visit_count')),
+        total_spent: parseFloat(formData.get('total_spent')),
+        avg_spent: parseFloat(formData.get('avg_spent')),
+        purchase_frequency: parseFloat(formData.get('purchase_frequency')),
+        avg_nps: parseFloat(formData.get('avg_nps')),
+        recommend_rate: parseFloat(formData.get('recommend_rate'))
+    };
+
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('result').style.display = 'none';
+
+    try {
+        const response = await fetch('/api/predict/churn', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        document.getElementById('loading').style.display = 'none';
+
+        if (response.ok) {
+            displayResult(result);
+        } else {
+            displayError(result.error || 'Prediction failed');
+        }
+    } catch (error) {
+        document.getElementById('loading').style.display = 'none';
+        displayError('Network error. Please try again.');
+    }
+});
+
+function displayResult(result) {
+    const riskClass = result.risk_tier === 'HIGH' ? 'risk-high' :
+                     result.risk_tier === 'MEDIUM' ? 'risk-medium' : 'risk-low';
+
+    const riskIcon = result.risk_tier === 'HIGH' ? '🔴' :
+                    result.risk_tier === 'MEDIUM' ? '🟡' : '🟢';
+
+    const riskColor = result.risk_tier === 'HIGH' ? 'var(--danger)' :
+                     result.risk_tier === 'MEDIUM' ? 'var(--warning)' : 'var(--secondary)';
+
+    const resultDiv = document.getElementById('result');
+    resultDiv.innerHTML = `
+        <div class="result-card">
+            <div class="result-header">
+                <span style="font-size: 3rem;">${riskIcon}</span>
+                <h3>Churn Risk Assessment</h3>
+            </div>
+
+            <div class="result-grid">
+                <div class="result-item" style="background: ${riskColor}; color: white;">
+                    <div class="result-label" style="color: rgba(255,255,255,0.9);">Churn Probability</div>
+                    <div class="result-value" style="color: white;">${(result.churn_probability * 100).toFixed(1)}%</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Risk Tier</div>
+                    <div class="result-value" style="color: ${riskColor};">${result.risk_tier}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Priority</div>
+                    <div class="result-value">P${result.priority}</div>
+                </div>
+            </div>
+
+            <div class="result-description ${riskClass}">
+                <h4>🎯 Recommended Action</h4>
+                <p><strong>${result.recommended_action}</strong></p>
+            </div>
+
+            <div class="result-description ${riskClass}" style="margin-top: 1rem;">
+                <h4>💝 Retention Offer</h4>
+                <p><strong>${result.offer}</strong></p>
+            </div>
+
+            <div class="result-grid" style="margin-top: 2rem;">
+                <div class="result-item">
+                    <div class="result-label">Customer LTV</div>
+                    <div class="result-value" style="font-size: 1.25rem;">$${result.metrics.customer_ltv}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Intervention Cost</div>
+                    <div class="result-value" style="font-size: 1.25rem;">$${result.metrics.intervention_cost}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Expected Recovery</div>
+                    <div class="result-value" style="font-size: 1.25rem;">$${result.metrics.expected_recovery}</div>
+                </div>
+                <div class="result-item" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <div class="result-label" style="color: rgba(255,255,255,0.9);">Expected ROI</div>
+                    <div class="result-value" style="color: white;">${result.metrics.expected_roi.toFixed(2)}x</div>
+                </div>
+            </div>
+        </div>
+    `;
+    resultDiv.style.display = 'block';
+}
+
+function displayError(message) {
+    const resultDiv = document.getElementById('result');
+    resultDiv.innerHTML = `
+        <div class="result-card" style="border-left: 4px solid var(--danger);">
+            <h3 style="color: var(--danger);">❌ Error</h3>
+            <p>${message}</p>
+        </div>
+    `;
+    resultDiv.style.display = 'block';
+}
+</script>
+{% endblock %}

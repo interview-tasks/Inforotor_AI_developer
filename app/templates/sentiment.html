@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block title %}Sentiment Analysis - POS ML Platform{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="hero">
+        <h1>💬 Sentiment Analysis</h1>
+        <p class="subtitle">Analyze customer feedback and detect satisfaction levels</p>
+    </section>
+
+    <div class="form-section">
+        <h2>Enter Customer Feedback</h2>
+        <form id="sentimentForm">
+            <div class="form-group">
+                <label for="comment">Customer Comment or Review</label>
+                <textarea id="comment" name="comment" rows="5"
+                          style="width: 100%; padding: 0.75rem; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; font-family: inherit;"
+                          placeholder="Enter customer feedback, review, or comment..."
+                          required></textarea>
+                <small>Type or paste customer feedback text</small>
+            </div>
+
+            <div class="form-group">
+                <label for="nps_score">NPS Score (Optional)</label>
+                <input type="number" id="nps_score" name="nps_score"
+                       min="0" max="10" placeholder="Leave empty if not available">
+                <small>Net Promoter Score from 0-10 (optional)</small>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Analyze Sentiment</button>
+        </form>
+    </div>
+
+    <div id="loading" class="loading" style="display: none;">
+        <div class="spinner"></div>
+        <p>Analyzing sentiment...</p>
+    </div>
+
+    <div id="result" style="display: none;"></div>
+
+    <section class="benefits-section">
+        <h2>How Sentiment Analysis Works</h2>
+        <div class="benefits-grid">
+            <div class="benefit-item">
+                <h4>🤖 TextBlob NLP</h4>
+                <p>Uses natural language processing to detect polarity (positive/negative) and subjectivity of feedback.</p>
+            </div>
+            <div class="benefit-item">
+                <h4>🔑 Keyword Detection</h4>
+                <p>Analyzes specific positive and negative keywords with intensifier recognition for nuanced scoring.</p>
+            </div>
+            <div class="benefit-item">
+                <h4>🎯 Action Prioritization</h4>
+                <p>Automatically classifies feedback priority and recommends appropriate response strategies.</p>
+            </div>
+            <div class="benefit-item">
+                <h4>⚡ Real-Time Analysis</h4>
+                <p>Instant sentiment scoring enables immediate customer service interventions when needed.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="benefits-section">
+        <h2>Sample Feedback to Try</h2>
+        <div class="benefits-grid">
+            <div class="benefit-item" onclick="fillSample('Great service and quality products! Staff is very friendly and helpful.')" style="cursor: pointer;">
+                <h4>😊 Positive Example</h4>
+                <p><em>"Great service and quality products! Staff is very friendly and helpful."</em></p>
+                <small>Click to use this sample</small>
+            </div>
+            <div class="benefit-item" onclick="fillSample('It\\'s okay, nothing special. Average store.')" style="cursor: pointer;">
+                <h4>😐 Neutral Example</h4>
+                <p><em>"It's okay, nothing special. Average store."</em></p>
+                <small>Click to use this sample</small>
+            </div>
+            <div class="benefit-item" onclick="fillSample('Poor service, won\\'t return. Overpriced items and unfriendly staff.')" style="cursor: pointer;">
+                <h4>😞 Negative Example</h4>
+                <p><em>"Poor service, won't return. Overpriced items and unfriendly staff."</em></p>
+                <small>Click to use this sample</small>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function fillSample(text) {
+    document.getElementById('comment').value = text;
+    document.getElementById('comment').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+document.getElementById('sentimentForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.target);
+    const data = {
+        comment: formData.get('comment')
+    };
+
+    const npsScore = formData.get('nps_score');
+    if (npsScore) {
+        data.nps_score = parseInt(npsScore);
+    }
+
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('result').style.display = 'none';
+
+    try {
+        const response = await fetch('/api/predict/sentiment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        document.getElementById('loading').style.display = 'none';
+
+        if (response.ok) {
+            displayResult(result);
+        } else {
+            displayError(result.error || 'Analysis failed');
+        }
+    } catch (error) {
+        document.getElementById('loading').style.display = 'none';
+        displayError('Network error. Please try again.');
+    }
+});
+
+function displayResult(result) {
+    const colorMap = {
+        'success': 'var(--secondary)',
+        'warning': 'var(--warning)',
+        'danger': 'var(--danger)'
+    };
+
+    const resultDiv = document.getElementById('result');
+    resultDiv.innerHTML = `
+        <div class="result-card">
+            <div class="result-header">
+                <span style="font-size: 3rem;">${result.emoji}</span>
+                <h3>Sentiment Analysis Result</h3>
+            </div>
+
+            <div class="result-grid">
+                <div class="result-item" style="background: ${colorMap[result.color]}; color: white;">
+                    <div class="result-label" style="color: rgba(255,255,255,0.9);">Sentiment</div>
+                    <div class="result-value" style="color: white;">${result.sentiment}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Confidence</div>
+                    <div class="result-value">${(result.confidence * 100).toFixed(1)}%</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Priority</div>
+                    <div class="result-value">${result.priority}</div>
+                </div>
+            </div>
+
+            <div class="result-grid" style="margin-top: 1rem;">
+                <div class="result-item">
+                    <div class="result-label">Polarity</div>
+                    <div style="font-size: 1.25rem; font-weight: 600;">${result.polarity}</div>
+                    <small>(-1 negative, +1 positive)</small>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Subjectivity</div>
+                    <div style="font-size: 1.25rem; font-weight: 600;">${result.subjectivity}</div>
+                    <small>(0 objective, 1 subjective)</small>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Positive Keywords</div>
+                    <div style="font-size: 1.25rem; font-weight: 600; color: var(--secondary);">${result.keyword_analysis.positive_keywords}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Negative Keywords</div>
+                    <div style="font-size: 1.25rem; font-weight: 600; color: var(--danger);">${result.keyword_analysis.negative_keywords}</div>
+                </div>
+            </div>
+
+            <div class="result-description" style="margin-top: 1.5rem; background: ${result.color === 'danger' ? '#fee2e2' : result.color === 'warning' ? '#fef3c7' : '#d1fae5'}; border-left-color: ${colorMap[result.color]};">
+                <h4>🎯 Recommended Action</h4>
+                <p><strong>${result.recommended_action}</strong></p>
+            </div>
+        </div>
+    `;
+    resultDiv.style.display = 'block';
+}
+
+function displayError(message) {
+    const resultDiv = document.getElementById('result');
+    resultDiv.innerHTML = `
+        <div class="result-card" style="border-left: 4px solid var(--danger);">
+            <h3 style="color: var(--danger);">❌ Error</h3>
+            <p>${message}</p>
+        </div>
+    `;
+    resultDiv.style.display = 'block';
+}
+</script>
+{% endblock %}

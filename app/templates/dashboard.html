@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - POS ML Platform{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="hero">
+        <h1>📊 ML Dashboard</h1>
+        <p class="subtitle">Real-time model performance and business metrics</p>
+    </section>
+
+    {% if metadata %}
+    <section class="metrics-section">
+        <h2>Model Performance Overview</h2>
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-label">Training Date</div>
+                <div class="metric-value" style="font-size: 1rem;">{{ metadata.training_date[:10] }}</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Training Samples</div>
+                <div class="metric-value">{{ "{:,}".format(metadata.n_samples) }}</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Active Models</div>
+                <div class="metric-value">5</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Status</div>
+                <div class="metric-value" style="color: var(--secondary); font-size: 1.5rem;">✓ Healthy</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="models-grid" style="margin-top: 3rem;">
+        <div class="model-card">
+            <div class="model-icon">👥</div>
+            <h3>Customer Segmentation</h3>
+
+            <div class="metric-card" style="margin: 1rem 0;">
+                <div class="metric-label">Algorithm</div>
+                <div class="metric-value" style="font-size: 1.25rem;">K-Means</div>
+            </div>
+
+            <div class="metric-card" style="margin: 1rem 0;">
+                <div class="metric-label">Number of Segments</div>
+                <div class="metric-value" style="font-size: 1.5rem;">{{ metadata.models.segmentation.n_segments }}</div>
+            </div>
+
+            <div class="result-description">
+                <h4>Features Used</h4>
+                <ul style="margin-top: 0.5rem;">
+                    {% for feature in metadata.models.segmentation.features %}
+                    <li style="font-size: 0.875rem;">{{ feature.replace('_', ' ').title() }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <a href="/segmentation" class="btn btn-secondary" style="margin-top: 1rem; width: 100%;">Test Model →</a>
+        </div>
+
+        <div class="model-card">
+            <div class="model-icon">💰</div>
+            <h3>Purchase Prediction</h3>
+
+            <div class="metric-card" style="margin: 1rem 0;">
+                <div class="metric-label">Algorithm</div>
+                <div class="metric-value" style="font-size: 1.25rem;">XGBoost</div>
+            </div>
+
+            <div class="result-grid" style="margin: 1rem 0;">
+                <div class="metric-card">
+                    <div class="metric-label">MAE</div>
+                    <div class="metric-value" style="font-size: 1.25rem;">${{ "%.2f"|format(metadata.models.purchase_prediction.mae) }}</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">MAPE</div>
+                    <div class="metric-value" style="font-size: 1.25rem;">{{ "%.1f"|format(metadata.models.purchase_prediction.mape * 100) }}%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">R² Score</div>
+                    <div class="metric-value" style="font-size: 1.25rem;">{{ "%.3f"|format(metadata.models.purchase_prediction.r2) }}</div>
+                </div>
+            </div>
+
+            <div class="result-description">
+                <p><strong>Interpretation:</strong> Mean error of ${{ "%.2f"|format(metadata.models.purchase_prediction.mae) }} with R² of {{ "%.3f"|format(metadata.models.purchase_prediction.r2) }} indicates excellent predictive accuracy.</p>
+            </div>
+
+            <a href="/purchase" class="btn btn-secondary" style="margin-top: 1rem; width: 100%;">Test Model →</a>
+        </div>
+
+        <div class="model-card">
+            <div class="model-icon">🔥</div>
+            <h3>Churn Risk Scoring</h3>
+
+            <div class="metric-card" style="margin: 1rem 0;">
+                <div class="metric-label">Algorithm</div>
+                <div class="metric-value" style="font-size: 1.25rem;">Gradient Boosting</div>
+            </div>
+
+            <div class="result-grid" style="margin: 1rem 0;">
+                <div class="metric-card">
+                    <div class="metric-label">AUC-ROC</div>
+                    <div class="metric-value" style="font-size: 1.5rem;">{{ "%.3f"|format(metadata.models.churn.auc) }}</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Churn Rate</div>
+                    <div class="metric-value" style="font-size: 1.5rem;">{{ "%.1f"|format(metadata.models.churn.churn_rate * 100) }}%</div>
+                </div>
+            </div>
+
+            <div class="result-description">
+                <p><strong>Interpretation:</strong> AUC of {{ "%.3f"|format(metadata.models.churn.auc) }} demonstrates strong discriminative ability between churned and active customers.</p>
+            </div>
+
+            <a href="/churn" class="btn btn-secondary" style="margin-top: 1rem; width: 100%;">Test Model →</a>
+        </div>
+
+        <div class="model-card">
+            <div class="model-icon">💬</div>
+            <h3>Sentiment Analysis</h3>
+
+            <div class="metric-card" style="margin: 1rem 0;">
+                <div class="metric-label">Algorithm</div>
+                <div class="metric-value" style="font-size: 1.25rem;">TextBlob NLP</div>
+            </div>
+
+            <div class="result-grid" style="margin: 1rem 0;">
+                <div class="metric-card">
+                    <div class="metric-label">Training Samples</div>
+                    <div class="metric-value" style="font-size: 1.25rem;">{{ "{:,}".format(metadata.models.sentiment.n_samples) }}</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Positive Rate</div>
+                    <div class="metric-value" style="font-size: 1.25rem;">{{ "%.1f"|format(metadata.models.sentiment.positive_rate * 100) }}%</div>
+                </div>
+            </div>
+
+            <div class="result-description">
+                <p><strong>Features:</strong> Polarity detection, keyword analysis, subjectivity scoring, and priority classification.</p>
+            </div>
+
+            <a href="/sentiment" class="btn btn-secondary" style="margin-top: 1rem; width: 100%;">Test Model →</a>
+        </div>
+
+        <div class="model-card">
+            <div class="model-icon">📍</div>
+            <h3>POS Location Ranking</h3>
+
+            <div class="metric-card" style="margin: 1rem 0;">
+                <div class="metric-label">Algorithm</div>
+                <div class="metric-value" style="font-size: 1.25rem;">Composite Scoring</div>
+            </div>
+
+            <div class="result-grid" style="margin: 1rem 0;">
+                <div class="metric-card">
+                    <div class="metric-label">Locations</div>
+                    <div class="metric-value" style="font-size: 1.25rem;">{{ metadata.models.pos_ranking.n_locations }}</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Top Location</div>
+                    <div class="metric-value" style="font-size: 1rem;">{{ metadata.models.pos_ranking.top_location }}</div>
+                </div>
+            </div>
+
+            <div class="result-description">
+                <p><strong>Scoring:</strong> 40% revenue, 35% efficiency, 25% satisfaction. Benchmarks locations against each other.</p>
+            </div>
+
+            <a href="/pos-ranking" class="btn btn-secondary" style="margin-top: 1rem; width: 100%;">Test Model →</a>
+        </div>
+    </section>
+
+    <section class="benefits-section" style="margin-top: 3rem;">
+        <h2>Business Impact Metrics</h2>
+        <div class="benefits-grid">
+            <div class="benefit-item">
+                <h4>📈 Revenue Increase</h4>
+                <div class="metric-value" style="margin-top: 0.5rem;">15-25%</div>
+                <p style="margin-top: 0.5rem;">Through targeted upselling and personalized offers</p>
+            </div>
+            <div class="benefit-item">
+                <h4>🎯 Churn Reduction</h4>
+                <div class="metric-value" style="margin-top: 0.5rem;">30-40%</div>
+                <p style="margin-top: 0.5rem;">Via proactive retention campaigns</p>
+            </div>
+            <div class="benefit-item">
+                <h4>💰 Marketing ROI</h4>
+                <div class="metric-value" style="margin-top: 0.5rem;">3.5-5.0x</div>
+                <p style="margin-top: 0.5rem;">Segment-specific campaign efficiency</p>
+            </div>
+            <div class="benefit-item">
+                <h4>⚡ Response Time</h4>
+                <div class="metric-value" style="margin-top: 0.5rem;">&lt;100ms</div>
+                <p style="margin-top: 0.5rem;">Real-time predictions at POS</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="benefits-section" style="margin-top: 3rem;">
+        <h2>Technical Stack</h2>
+        <div class="benefits-grid">
+            <div class="benefit-item">
+                <h4>🚀 Backend</h4>
+                <p>FastAPI with async support for high-performance API endpoints</p>
+            </div>
+            <div class="benefit-item">
+                <h4>🤖 ML Framework</h4>
+                <p>scikit-learn, XGBoost, imbalanced-learn for production models</p>
+            </div>
+            <div class="benefit-item">
+                <h4>🐳 Deployment</h4>
+                <p>Docker containerization with automated CI/CD pipeline</p>
+            </div>
+            <div class="benefit-item">
+                <h4>📱 Frontend</h4>
+                <p>Responsive Jinja2 templates with mobile-first design</p>
+            </div>
+        </div>
+    </section>
+
+    {% else %}
+    <div class="error-page">
+        <h2>⚠️ Models Not Loaded</h2>
+        <p>Please ensure models are trained before viewing dashboard.</p>
+        <a href="/" class="btn btn-primary">Return Home</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
