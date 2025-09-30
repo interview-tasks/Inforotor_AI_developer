@@ -11,6 +11,33 @@
 
     <div class="form-section">
         <h2>Enter Customer Feedback</h2>
+
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Quick Demo Examples:</label>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <button type="button" class="btn btn-secondary" style="font-size: 0.875rem; padding: 0.5rem 1rem;"
+                        onclick="fillSample('Great service and quality products! Staff is very friendly and helpful. Best prices in town.')">
+                    😊 Positive
+                </button>
+                <button type="button" class="btn btn-secondary" style="font-size: 0.875rem; padding: 0.5rem 1rem; background: var(--warning);"
+                        onclick="fillSample('It\\'s okay, nothing special. Average store with standard selection.')">
+                    😐 Neutral
+                </button>
+                <button type="button" class="btn btn-secondary" style="font-size: 0.875rem; padding: 0.5rem 1rem; background: var(--danger);"
+                        onclick="fillSample('Poor service, won\\'t return. Overpriced items and unfriendly staff. Very disappointed.')">
+                    😞 Negative
+                </button>
+                <button type="button" class="btn btn-secondary" style="font-size: 0.875rem; padding: 0.5rem 1rem;"
+                        onclick="fillSample('Absolutely love this place! The selection is excellent and staff goes above and beyond. Will definitely recommend!')">
+                    🌟 Highly Positive
+                </button>
+                <button type="button" class="btn btn-secondary" style="font-size: 0.875rem; padding: 0.5rem 1rem; background: var(--danger);"
+                        onclick="fillSample('Rude employees and terrible customer service. Store is dirty and disorganized. Not worth the visit.')">
+                    😡 Highly Negative
+                </button>
+            </div>
+        </div>
+
         <form id="sentimentForm">
             <div class="form-group">
                 <label for="comment">Customer Comment or Review</label>
@@ -18,7 +45,7 @@
                           style="width: 100%; padding: 0.75rem; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; font-family: inherit;"
                           placeholder="Enter customer feedback, review, or comment..."
                           required></textarea>
-                <small>Type or paste customer feedback text</small>
+                <small>Type your own feedback or click a quick demo button above</small>
             </div>
 
             <div class="form-group">
@@ -61,26 +88,6 @@
         </div>
     </section>
 
-    <section class="benefits-section">
-        <h2>Sample Feedback to Try</h2>
-        <div class="benefits-grid">
-            <div class="benefit-item" onclick="fillSample('Great service and quality products! Staff is very friendly and helpful.')" style="cursor: pointer;">
-                <h4>😊 Positive Example</h4>
-                <p><em>"Great service and quality products! Staff is very friendly and helpful."</em></p>
-                <small>Click to use this sample</small>
-            </div>
-            <div class="benefit-item" onclick="fillSample('It\\'s okay, nothing special. Average store.')" style="cursor: pointer;">
-                <h4>😐 Neutral Example</h4>
-                <p><em>"It's okay, nothing special. Average store."</em></p>
-                <small>Click to use this sample</small>
-            </div>
-            <div class="benefit-item" onclick="fillSample('Poor service, won\\'t return. Overpriced items and unfriendly staff.')" style="cursor: pointer;">
-                <h4>😞 Negative Example</h4>
-                <p><em>"Poor service, won't return. Overpriced items and unfriendly staff."</em></p>
-                <small>Click to use this sample</small>
-            </div>
-        </div>
-    </section>
 </div>
 {% endblock %}
 

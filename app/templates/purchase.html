@@ -11,6 +11,29 @@
 
     <div class="form-section">
         <h2>Enter Customer & Context Data</h2>
+
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Quick Demo Scenarios:</label>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <button type="button" class="btn btn-secondary" style="font-size: 0.875rem; padding: 0.5rem 1rem;"
+                        onclick="fillDemo(35, 'male', 14, 5, 22.5, false, 60)">
+                    🛒 Weekend Shopper
+                </button>
+                <button type="button" class="btn btn-secondary" style="font-size: 0.875rem; padding: 0.5rem 1rem;"
+                        onclick="fillDemo(28, 'female', 19, 4, 18.0, false, 45)">
+                    🌙 Evening Customer
+                </button>
+                <button type="button" class="btn btn-secondary" style="font-size: 0.875rem; padding: 0.5rem 1rem;"
+                        onclick="fillDemo(45, 'male', 12, 2, 25.0, true, 30)">
+                    ☔ Rainy Day
+                </button>
+                <button type="button" class="btn btn-secondary" style="font-size: 0.875rem; padding: 0.5rem 1rem;"
+                        onclick="fillDemo(52, 'female', 10, 1, 20.0, false, 90)">
+                    ⏰ Long Visit
+                </button>
+            </div>
+        </div>
+
         <form id="purchaseForm">
             <div class="form-group">
                 <label for="customer_age">Customer Age</label>
@@ -103,6 +126,16 @@
 
 {% block scripts %}
 <script>
+function fillDemo(age, gender, hour, dayOfWeek, temp, isRainy, duration) {
+    document.getElementById('customer_age').value = age;
+    document.getElementById('customer_gender').value = gender;
+    document.getElementById('hour').value = hour;
+    document.getElementById('day_of_week').value = dayOfWeek;
+    document.getElementById('temperature_c').value = temp;
+    document.getElementById('is_rainy').value = isRainy;
+    document.getElementById('visit_duration_minutes').value = duration;
+}
+
 document.getElementById('purchaseForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 

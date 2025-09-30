@@ -11,6 +11,29 @@
 
     <div class="form-section">
         <h2>Enter Customer Behavior Metrics</h2>
+
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Quick Demo Scenarios:</label>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <button type="button" class="btn btn-secondary" style="font-size: 0.875rem; padding: 0.5rem 1rem; background: var(--danger);"
+                        onclick="fillChurnDemo(75, 2, 85.00, 42.50, 0.02, 4.5, 0.30)">
+                    🔴 High Risk
+                </button>
+                <button type="button" class="btn btn-secondary" style="font-size: 0.875rem; padding: 0.5rem 1rem; background: var(--warning);"
+                        onclick="fillChurnDemo(35, 6, 220.00, 36.67, 0.05, 6.8, 0.65)">
+                    🟡 Medium Risk
+                </button>
+                <button type="button" class="btn btn-secondary" style="font-size: 0.875rem; padding: 0.5rem 1rem; background: var(--secondary);"
+                        onclick="fillChurnDemo(12, 15, 550.00, 36.67, 0.12, 8.5, 0.90)">
+                    🟢 Low Risk
+                </button>
+                <button type="button" class="btn btn-secondary" style="font-size: 0.875rem; padding: 0.5rem 1rem;"
+                        onclick="fillChurnDemo(5, 25, 920.00, 36.80, 0.20, 9.2, 0.95)">
+                    ⭐ VIP Customer
+                </button>
+            </div>
+        </div>
+
         <form id="churnForm">
             <div class="form-group">
                 <label for="recency_days">Days Since Last Visit</label>
@@ -98,6 +121,16 @@
 
 {% block scripts %}
 <script>
+function fillChurnDemo(recency, visits, totalSpent, avgSpent, frequency, nps, recommend) {
+    document.getElementById('recency_days').value = recency;
+    document.getElementById('visit_count').value = visits;
+    document.getElementById('total_spent').value = totalSpent;
+    document.getElementById('avg_spent').value = avgSpent;
+    document.getElementById('purchase_frequency').value = frequency;
+    document.getElementById('avg_nps').value = nps;
+    document.getElementById('recommend_rate').value = recommend;
+}
+
 document.getElementById('churnForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 

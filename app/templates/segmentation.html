@@ -11,6 +11,33 @@
 
     <div class="form-section">
         <h2>Enter Customer Metrics</h2>
+
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Quick Demo Segments:</label>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <button type="button" class="btn btn-secondary" style="font-size: 0.875rem; padding: 0.5rem 1rem;"
+                        onclick="fillSegmentDemo(55.50, 18, 9.2, 4.8, 0.95, 0.25)">
+                    🌟 Premium Regular
+                </button>
+                <button type="button" class="btn btn-secondary" style="font-size: 0.875rem; padding: 0.5rem 1rem;"
+                        onclick="fillSegmentDemo(22.50, 15, 7.5, 3.8, 0.70, 0.15)">
+                    💵 Budget Shopper
+                </button>
+                <button type="button" class="btn btn-secondary" style="font-size: 0.875rem; padding: 0.5rem 1rem;"
+                        onclick="fillSegmentDemo(32.00, 4, 6.5, 3.5, 0.60, 0.10)">
+                    🔄 Occasional Buyer
+                </button>
+                <button type="button" class="btn btn-secondary" style="font-size: 0.875rem; padding: 0.5rem 1rem;"
+                        onclick="fillSegmentDemo(38.00, 8, 7.8, 4.0, 0.75, 0.85)">
+                    🎉 Weekend Socializer
+                </button>
+                <button type="button" class="btn btn-secondary" style="font-size: 0.875rem; padding: 0.5rem 1rem; background: var(--danger);"
+                        onclick="fillSegmentDemo(18.50, 2, 4.2, 2.5, 0.35, 0.20)">
+                    ⚠️ At-Risk
+                </button>
+            </div>
+        </div>
+
         <form id="segmentationForm">
             <div class="form-group">
                 <label for="purchase_value_mean">Average Purchase Value ($)</label>
@@ -95,6 +122,15 @@
 
 {% block scripts %}
 <script>
+function fillSegmentDemo(avgPurchase, purchaseCount, nps, overall, recommend, weekend) {
+    document.getElementById('purchase_value_mean').value = avgPurchase;
+    document.getElementById('purchase_value_count').value = purchaseCount;
+    document.getElementById('nps_score_mean').value = nps;
+    document.getElementById('overall_score_mean').value = overall;
+    document.getElementById('would_recommend_mean').value = recommend;
+    document.getElementById('is_weekend_mean').value = weekend;
+}
+
 document.getElementById('segmentationForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
