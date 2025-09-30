@@ -1,0 +1,3 @@
+hostess_id,employee_code,name_hash,gender,age,employment_type,status,total_mileage_km,work_schedule,available_hours_per_week,avg_customer_rating,last_location_update,created_at,updated_at
+8aacf1b2-2a9f-4c3d-9f00-000000000001,HST_001,sha256:3a7bd3...,female,29,part_time,active,12540.75,"mon:18:00-23:00;wed:18:00-23:00;fri:20:00-02:00",24,4.63,2025-09-30T21:50:00+04:00,2023-01-15T08:30:00+04:00,2025-09-30T21:50:00+04:00
+8aacf1b2-2a9f-4c3d-9f00-000000000002,HST_002,sha256:7f4c11...,female,24,contract,active,8420.10,"tue:17:00-22:00;thu:17:00-22:00;sat:19:00-02:00",20,4.41,2025-09-29T23:10:00+04:00,2024-03-02T09:10:00+04:00,2025-09-29T23:10:00+04:00
