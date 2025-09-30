@@ -1781,38 +1781,49 @@ gantt
 ### System Architecture Diagram
 
 ```mermaid
-C4Context
-    title System Context - ML Platform for Cigarette POS Business
+graph TB
+    subgraph "Users"
+        U1[Marketing Team<br/>Campaign Management]
+        U2[Operations Team<br/>POS Monitoring]
+        U3[Store Managers<br/>Alerts & Actions]
+    end
 
-    Person(marketing, "Marketing Team", "Manages campaigns and segments")
-    Person(ops, "Operations Team", "Monitors POS performance")
-    Person(manager, "Store Managers", "Receives churn alerts")
+    subgraph "ML Platform"
+        API[FastAPI Services<br/>Prediction APIs]
+        DASH[Streamlit Dashboards<br/>Analytics UI]
+        BATCH[Airflow Jobs<br/>Batch Processing]
+    end
 
-    System_Boundary(ml_platform, "ML Platform") {
-        System(api, "FastAPI Services", "Prediction APIs")
-        System(dashboard, "Streamlit Dashboards", "Analytics UI")
-        System(batch, "Airflow Jobs", "Batch processing")
-    }
+    subgraph "External Systems"
+        POS[POS System<br/>Transactions]
+        SURVEY[Survey App<br/>Feedback]
+        CRM[CRM System<br/>Customer Data]
+    end
 
-    System_Ext(pos_system, "POS System", "Transaction data")
-    System_Ext(survey_app, "Survey App", "Customer feedback")
-    System_Ext(crm, "CRM System", "Customer data")
+    subgraph "Data Storage"
+        DB[(PostgreSQL<br/>OLTP Database)]
+        CACHE[(Redis Cache<br/>Predictions)]
+        S3[(S3 Storage<br/>Models & Data)]
+    end
 
-    SystemDb(postgres, "PostgreSQL", "Processed data")
-    SystemDb(redis, "Redis Cache", "Real-time predictions")
-    SystemDb(s3, "S3 Storage", "Model artifacts")
+    SURVEY -->|REST API| API
+    POS -->|REST API| API
+    API -->|Update Scores| CRM
 
-    Rel(survey_app, ml_platform, "Sends survey data", "REST API")
-    Rel(pos_system, ml_platform, "Sends transaction data", "REST API")
-    Rel(ml_platform, crm, "Updates customer scores", "REST API")
+    U1 -->|HTTPS| DASH
+    U2 -->|HTTPS| DASH
+    U3 -->|Email/SMS| API
 
-    Rel(marketing, dashboard, "Views segments", "HTTPS")
-    Rel(ops, dashboard, "Monitors performance", "HTTPS")
-    Rel(manager, api, "Receives alerts", "Email/SMS")
+    API -->|SQL| DB
+    API -->|Cache| CACHE
+    BATCH -->|Store| S3
+    BATCH -->|Read/Write| DB
 
-    Rel(ml_platform, postgres, "Reads/Writes", "SQL")
-    Rel(api, redis, "Caches predictions", "Redis Protocol")
-    Rel(batch, s3, "Stores models", "S3 API")
+    style API fill:#4CAF50,color:#fff
+    style DASH fill:#2196F3,color:#fff
+    style BATCH fill:#FF9800,color:#fff
+    style DB fill:#9C27B0,color:#fff
+    style CACHE fill:#F44336,color:#fff
 ```
 
 ### Data Flow Architecture
