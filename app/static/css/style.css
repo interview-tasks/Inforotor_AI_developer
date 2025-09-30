@@ -529,6 +529,17 @@ body {
     .benefits-grid {
         grid-template-columns: 1fr;
     }
+
+    /* Demo buttons responsive */
+    .btn-secondary {
+        font-size: 0.8rem !important;
+        padding: 0.4rem 0.8rem !important;
+        white-space: nowrap;
+    }
+
+    .form-section {
+        padding: 1.5rem;
+    }
 }
 
 @media (max-width: 480px) {
@@ -542,5 +553,21 @@ body {
 
     .error-page h1 {
         font-size: 4rem;
+    }
+
+    /* Extra small screens - stack demo buttons */
+    .btn-secondary {
+        font-size: 0.75rem !important;
+        padding: 0.35rem 0.6rem !important;
+        flex: 1 1 auto;
+        min-width: 45%;
+    }
+
+    .form-section {
+        padding: 1rem;
+    }
+
+    .container {
+        padding: 0 15px;
     }
 }
