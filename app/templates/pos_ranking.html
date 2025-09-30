@@ -11,6 +11,29 @@
 
     <div class="form-section">
         <h2>Evaluate New Location</h2>
+
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Quick Demo Locations:</label>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <button type="button" class="btn btn-secondary" style="font-size: 0.875rem; padding: 0.5rem 1rem; background: var(--secondary);"
+                        onclick="fillPOSDemo(950, 32000, 6500, 4.6)">
+                    🏆 Top Performer
+                </button>
+                <button type="button" class="btn btn-secondary" style="font-size: 0.875rem; padding: 0.5rem 1rem;"
+                        onclick="fillPOSDemo(650, 22000, 4000, 4.2)">
+                    ✅ Good Location
+                </button>
+                <button type="button" class="btn btn-secondary" style="font-size: 0.875rem; padding: 0.5rem 1rem; background: var(--warning);"
+                        onclick="fillPOSDemo(420, 14500, 3200, 3.7)">
+                    ⚠️ Needs Improvement
+                </button>
+                <button type="button" class="btn btn-secondary" style="font-size: 0.875rem; padding: 0.5rem 1rem; background: var(--danger);"
+                        onclick="fillPOSDemo(280, 9800, 2800, 3.2)">
+                    📉 Underperforming
+                </button>
+            </div>
+        </div>
+
         <form id="posRankForm">
             <div class="form-group">
                 <label for="monthly_transactions">Monthly Transactions</label>
@@ -111,6 +134,13 @@
 
 {% block scripts %}
 <script>
+function fillPOSDemo(transactions, revenue, traffic, satisfaction) {
+    document.getElementById('monthly_transactions').value = transactions;
+    document.getElementById('monthly_revenue').value = revenue;
+    document.getElementById('foot_traffic').value = traffic;
+    document.getElementById('customer_satisfaction').value = satisfaction;
+}
+
 document.getElementById('posRankForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
